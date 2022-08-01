@@ -762,7 +762,7 @@ async def advantage_spell_chok(msg):
     gs_parsed = []
     if not g_s:
         k = await msg.reply("MUJE YEH NAME SE KOI MOVIE NAI MILL RAHI.")
-        await asyncio.sleep(2)
+        await asyncio.sleep(8)
         await k.delete()
         return
     regex = re.compile(r".*(imdb|wikipedia).*", re.IGNORECASE)  # look for imdb / wiki results
