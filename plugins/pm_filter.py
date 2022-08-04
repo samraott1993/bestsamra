@@ -60,11 +60,13 @@ async def next_page(bot, query):
     if not files:
         return
     settings = await get_settings(query.message.chat.id)
+    pre = 'Chat' if settings['redirect_to'] == 'Chat' else 'files'
+    
     if settings['button']:
         btn = [
             [
                 InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", callback_data=f'files#{file.file_id}'
+                    text=f"📂 [{get_size(file.file_size)}] {file.file_name}", callback_data=f'{pre}#{file.file_id}#{query.from_user.id}'
                 ),
             ]
             for file in files
@@ -76,8 +78,8 @@ async def next_page(bot, query):
                     text=f"{file.file_name}", callback_data=f'files#{file.file_id}'
                 ),
                 InlineKeyboardButton(
-                    text=f"{get_size(file.file_size)}",
-                    callback_data=f'files_#{file.file_id}',
+                    text=f"📂[{get_size(file.file_size)}]",
+                    callback_data=f'{pre}_#{file.file_id}#{query.from_user.id}',
                 )
             ] 
             for file in files
@@ -90,7 +92,7 @@ async def next_page(bot, query):
             ])
 
     btn.insert(0, [
-        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/samraott1")#unknown
+        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/how_to_download_movie_from_bot")#unknown
     ])
 
     if 0 < offset <= 10:
@@ -118,9 +120,7 @@ async def next_page(bot, query):
             ],
         )
     btn.insert(0, [
-        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/samraott1"),
-        InlineKeyboardButton("🎭 ᴍᴏᴠɪᴇs", url="https://t.me/samramovie"),
-        InlineKeyboardButton("📢 ᴄʜᴀɴɴᴇʟ", url="https://t.me/samraott1")
+        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/how_to_download_movie_from_bot")
     ])
     try:
         await query.edit_message_reply_markup(
@@ -135,7 +135,7 @@ async def next_page(bot, query):
 async def advantage_spoll_choker(bot, query):
     _, user, movie_ = query.data.split('#')
     if int(user) != 0 and query.from_user.id != int(user):
-        return await query.answer("APP APNI MOVIE SEARCH KARLE DUKHI ATMA 🤣🤣", show_alert=True)
+        return await query.answer("Check Your Own Request 😡 ", show_alert=True)
     if movie_ == "close_spellcheck":
         return await query.message.delete()
     movies = SPELL_CHECK.get(query.message.reply_to_message.message_id)
@@ -150,9 +150,11 @@ async def advantage_spoll_choker(bot, query):
             k = (movie, files, offset, total_results)
             await auto_filter(bot, query, k)
         else:
-            k = await query.message.edit('MERE PASS YEH 🎥MOVIE NAI HAI')
-            await asyncio.sleep(10)
+            one_button = InlineKeyboardMarkup([[InlineKeyboardButton("👼🏻 𝘼𝘿𝙈𝙄𝙉", url="https://t.me/sheffysamra"), InlineKeyboardButton("🤕 𝙂𝙊𝙊𝙂𝙇𝙀 🤒", url="https://www.google.com/")]])
+            k = await msg.reply_video(video="https://telegra.ph/file/aa2ccd9f4fd452a827f80.jpg", caption="<b> Hey, sᴏʀʀʏ, ɴᴏ ᴍᴏᴠɪᴇs/sᴇʀɪᴇs ʀᴇʟᴀᴛᴇᴅ ᴛᴏ ᴛʜᴇ ɢɪᴠᴇɴ ᴡᴀs ғᴏᴜɴᴅ 🥲\n\n𝙿𝚘𝚜𝚜𝚒𝚋𝚕𝚎 𝙲𝚊𝚞𝚜𝚎𝚜 : 🤔\n\n★ ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ʏᴇᴛ\n★ ɪɴᴄᴏʀʀᴇᴄᴛ sᴘᴇʟʟɪɴɢ\n★ ɴᴏᴛ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴛʜᴇ ᴏᴡɴᴇʀ\n\n👉ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ👇 </b>", reply_markup = one_button)#Spell check reply
+            await asyncio.sleep(20)
             await k.delete()
+            await msg.delete()
 
 
 @Client.on_callback_query()
@@ -239,7 +241,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             reply_markup=keyboard,
             parse_mode="md"
         )
-        return await query.answer('PIRACY KARNA BHOUT BDA GUNNAH HAI')
+        return await query.answer('⏳Loading...')
     elif "connectcb" in query.data:
         await query.answer()
 
@@ -260,7 +262,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             )
         else:
             await query.message.edit_text('Some error occurred!!', parse_mode="md")
-        return await query.answer('PIRACY KARNA BHOUT BDA GUNNAH HAI')
+        return await query.answer('⏳Loading...')
     elif "disconnect" in query.data:
         await query.answer()
 
@@ -283,7 +285,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 f"Some error occurred!!",
                 parse_mode="md"
             )
-        return await query.answer('PIRACY KARNA BHOUT BDA GUNNAH HAI')
+        return await query.answer('⏳Loading...')
     elif "deletecb" in query.data:
         await query.answer()
 
@@ -301,7 +303,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 f"Some error occurred!!",
                 parse_mode="md"
             )
-        return await query.answer('PIRACY KARNA BHOUT BDA GUNNAH HAI')
+        return await query.answer('⏳Loading...')
     elif query.data == "backcb":
         await query.answer()
 
@@ -312,7 +314,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_text(
                 "There are no active connections!! Connect to some groups first.",
             )
-            return await query.answer('PIRACY KARNA BHOUT BDA GUNNAH HAI')
+            return await query.answer('⏳Loading...')
         buttons = []
         for groupid in groupids:
             try:
@@ -683,7 +685,6 @@ async def auto_filter(client, msg, spoll=False):
         req = message.from_user.id if message.from_user else 0
         btn.append(
             [InlineKeyboardButton(text=f"🗓 1/{round(int(total_results) / 4)}", callback_data="pages"),
-            InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/samraott1"),
             InlineKeyboardButton(text="NEXT ⏩", callback_data=f"next_{req}_{key}_{offset}")]
         )
     else:
@@ -692,9 +693,7 @@ async def auto_filter(client, msg, spoll=False):
             
         )
     btn.insert(0, [
-        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/samraott1"),
-        InlineKeyboardButton("🎭 ᴍᴏᴠɪᴇs", url="https://t.me/samramovie"),
-        InlineKeyboardButton("📢 ᴄʜᴀɴɴᴇʟ", url="https://t.me/samraott1")
+        InlineKeyboardButton("📥 ʜᴏᴡ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ 📥", url="https://t.me/how_to_download_movie_from_bot")
     ])
     imdb = await get_poster(search, file=(files[0]).file_name) if settings["imdb"] else None
     TEMPLATE = settings['template']
@@ -761,9 +760,11 @@ async def advantage_spell_chok(msg):
     g_s += await search_gagala(msg.text)
     gs_parsed = []
     if not g_s:
-        k = await msg.reply("MUJE YEH NAME SE KOI MOVIE NAI MILL RAHI.")
-        await asyncio.sleep(8)
+        one_button = InlineKeyboardMarkup([[InlineKeyboardButton("👼🏻 𝘼𝘿𝙈𝙄𝙉", url="https://t.me/sheffysamra"), InlineKeyboardButton("🤕 𝙂𝙊𝙊𝙂𝙇𝙀 🤒", url="https://www.google.com/")]])
+        k = await msg.reply_video(video="https://telegra.ph/file/aa2ccd9f4fd452a827f80.jpg", caption="<b> Hey, sᴏʀʀʏ, ɴᴏ ᴍᴏᴠɪᴇs/sᴇʀɪᴇs ʀᴇʟᴀᴛᴇᴅ ᴛᴏ ᴛʜᴇ ɢɪᴠᴇɴ ᴡᴀs ғᴏᴜɴᴅ 🥲\n\n𝙿𝚘𝚜𝚜𝚒𝚋𝚕𝚎 𝙲𝚊𝚞𝚜𝚎𝚜 : 🤔\n\n★ ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ʏᴇᴛ\n★ ɪɴᴄᴏʀʀᴇᴄᴛ sᴘᴇʟʟɪɴɢ\n★ ɴᴏᴛ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴛʜᴇ ᴏᴡɴᴇʀ\n\n👉ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ👇 </b>", reply_markup = one_button)#Spell check reply
+        await asyncio.sleep(20)
         await k.delete()
+        await msg.delete()
         return
     regex = re.compile(r".*(imdb|wikipedia).*", re.IGNORECASE)  # look for imdb / wiki results
     gs = list(filter(regex.match, g_s))
@@ -790,9 +791,11 @@ async def advantage_spell_chok(msg):
     movielist += [(re.sub(r'(\-|\(|\)|_)', '', i, flags=re.IGNORECASE)).strip() for i in gs_parsed]
     movielist = list(dict.fromkeys(movielist))  # removing duplicates
     if not movielist:
-        k = await msg.reply("MUJE YEH NAME SE KOI MOVIE NAI MILL RAHI SPELLING CHECK KRLO PLEASE")
-        await asyncio.sleep(8)
+        one_button = InlineKeyboardMarkup([[InlineKeyboardButton("👼🏻 𝘼𝘿𝙈𝙄𝙉", url="https://t.me/sheffysamra"), InlineKeyboardButton("🤕 𝙂𝙊𝙊𝙂𝙇𝙀 🤒", url="https://www.google.com/")]])
+        k = await msg.reply_video(video="https://telegra.ph/file/aa2ccd9f4fd452a827f80.jpg", caption="<b> Hey, sᴏʀʀʏ, ɴᴏ ᴍᴏᴠɪᴇs/sᴇʀɪᴇs ʀᴇʟᴀᴛᴇᴅ ᴛᴏ ᴛʜᴇ ɢɪᴠᴇɴ ᴡᴀs ғᴏᴜɴᴅ 🥲\n\n𝙿𝚘𝚜𝚜𝚒𝚋𝚕𝚎 𝙲𝚊𝚞𝚜𝚎𝚜 : 🤔\n\n★ ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ʏᴇᴛ\n★ ɪɴᴄᴏʀʀᴇᴄᴛ sᴘᴇʟʟɪɴɢ\n★ ɴᴏᴛ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴛʜᴇ ᴏᴡɴᴇʀ\n\n👉ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ👇 </b>", reply_markup = one_button)#Spell check reply
+        await asyncio.sleep(20)
         await k.delete()
+        await msg.delete()
         return
     SPELL_CHECK[msg.message_id] = movielist
     btn = [[
@@ -802,8 +805,11 @@ async def advantage_spell_chok(msg):
         )
     ] for k, movie in enumerate(movielist)]
     btn.append ([InlineKeyboardButton(text="Close", callback_data=f'spolling#{user}#close_spellcheck')])
-    await msg.reply("MUJE ISSE RELATED KOI MOVIE NAI MILL RAHI\nDid you mean any one of these?",
-                    reply_markup=InlineKeyboardMarkup(btn))
+    one_button = InlineKeyboardMarkup([[InlineKeyboardButton("👼🏻 𝘼𝘿𝙈𝙄𝙉", url="https://t.me/sheffysamra"), InlineKeyboardButton("🤕 𝙂𝙊𝙊𝙂𝙇𝙀 🤒", url="https://www.google.com/")]])
+    k = await msg.reply_video(video="https://telegra.ph/file/aa2ccd9f4fd452a827f80.jpg", caption="<b> Hey, sᴏʀʀʏ, ɴᴏ ᴍᴏᴠɪᴇs/sᴇʀɪᴇs ʀᴇʟᴀᴛᴇᴅ ᴛᴏ ᴛʜᴇ ɢɪᴠᴇɴ ᴡᴀs ғᴏᴜɴᴅ 🥲\n\n𝙿𝚘𝚜𝚜𝚒𝚋𝚕𝚎 𝙲𝚊𝚞𝚜𝚎𝚜 : 🤔\n\n★ ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ʏᴇᴛ\n★ ɪɴᴄᴏʀʀᴇᴄᴛ sᴘᴇʟʟɪɴɢ\n★ ɴᴏᴛ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴛʜᴇ ᴏᴡɴᴇʀ\n\n👉ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ👇 </b>", reply_markup = one_button)#Spell check reply
+    await asyncio.sleep(20)
+    await k.delete()
+    await msg.delete()
 
 
 async def manual_filters(client, message, text=False):
