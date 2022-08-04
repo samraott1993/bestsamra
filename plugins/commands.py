@@ -1,5 +1,7 @@
+import imp
 import os
 import logging
+import pyrogram
 import random
 import asyncio
 from Script import script
@@ -21,49 +23,58 @@ BATCH_FILES = {}
 @Client.on_message(filters.command("start") & filters.incoming & ~filters.edited)
 async def start(client, message):
     if message.chat.type in ['group', 'supergroup']:
-        buttons = [
-            [
-                InlineKeyboardButton('🤖 Updates', url='https://t.me/samraott1')
-            ],
-            [
-                InlineKeyboardButton('ℹ️ Help', url=f"https://t.me/{temp.U_NAME}?start=help"),
-            ]
-            ]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup)
+        await message.reply_sticker(
+            'CAACAgUAAxkBAAEBHLhilcHI9LGFiorY11Cb41HiOT8XxgACbAYAAr4GsFT_LGNUHw4NliQE',
+            reply_markup=InlineKeyboardMarkup(
+                [[
+                    InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇꜱ', url='https://t.me/samramovie')
+                ],
+                [
+                    InlineKeyboardButton('ℹ️ ʜᴇʟᴘ', url=f"https://t.me/{temp.U_NAME}?start=help"),
+                ]]
+            )
+        )
+
         await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
+        
         if not await db.get_chat(message.chat.id):
             total=await client.get_chat_members_count(message.chat.id)
             await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown"))       
             await db.add_chat(message.chat.id, message.chat.title)
-        return 
+        return
+    
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
+        
     if len(message.command) != 2:
-        buttons = [[
-            InlineKeyboardButton('➕ ADD ME 2 U R GROUP ➕', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-        ], [
-            InlineKeyboardButton('🔍 Search', switch_inline_query_current_chat=''),
-            InlineKeyboardButton('🤖 Updates', url='https://t.me/samraott1')
-        ], [
-            InlineKeyboardButton('ℹ️ Help', callback_data='help'),
-            InlineKeyboardButton('📞 Contact', callback_data='https://t.me/sheffysamra'),
-            InlineKeyboardButton('😊 About', callback_data='about')
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply_photo(
-            photo=random.choice(PICS),
-            caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode='html'
+        await message.reply_sticker(
+            'CAACAgIAAxkBAALfhWKhyQAB6dM3e7xjAzNaNkDcJvRusAAChxUAAj0PUEnem2b91sejvx4E',
+            reply_markup=InlineKeyboardMarkup(
+                [[
+                    InlineKeyboardButton('🧨 ᴍᴏᴠɪᴇ ᴄʜᴀɴɴᴇʟ', url='https://t.me/samramovie')
+                ],
+                [
+                    InlineKeyboardButton('🔍 sᴇᴀʀᴄʜ ʜᴇʀᴇ', switch_inline_query_current_chat=''),
+                    InlineKeyboardButton('👥 ɢʀᴏᴜᴘ', url='https://t.me/samramovie')
+                ],
+                [
+                    InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
+                    InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
+                ],
+                [
+                    InlineKeyboardButton('❌ ᴄʟᴏsᴇ', callback_data='close')
+                ]]
+            )
         )
+        
         return
+    
     if AUTH_CHANNEL and not await is_subscribed(client, message):
         try:
             invite_link = await client.create_chat_invite_link(int(AUTH_CHANNEL))
         except ChatAdminRequired:
-            logger.error("Make sure Bot is admin in Forcesub channel")
+            logger.error("Make sure Bot is admin in Forcesub channel 😬")
             return
         btn = [
             [
@@ -74,37 +85,42 @@ async def start(client, message):
         ]
 
         if message.command[1] != "subscribe":
-            try:
-            	kk, file_id = message.command[1].split("_", 1)
-            	pre = 'checksubp' if kk == 'filep' else 'checksub' 
-            	btn.append([InlineKeyboardButton(" 🔄 Try Again", callback_data=f"{pre}#{file_id}")])
-            except IndexError:
-                btn.append([InlineKeyboardButton(" 🔄 Try Again", url=f"https://t.me/{temp.U_NAME}/{message.command[1]}")])
+            kk, file_id = message.command[1].split("_", 1)
+            pre = 'checksubp' if kk == 'filep' else 'checksub' 
+            btn.append([InlineKeyboardButton(" 🔄 Tʀʏ Aɢᴀɪɴ", callback_data=f"{pre}#{file_id}")])
         await client.send_message(
             chat_id=message.from_user.id,
-            text="**BOT USE KRNE KE LIYE CHANNEL JOIN KAREIN ( https://t.me/samraott1 )!**",
+            text="**AGAR MOVIE APKO CHAIYE TAP AND JOIN CHANNLE !**",
             reply_markup=InlineKeyboardMarkup(btn),
             parse_mode="markdown"
             )
         return
+    
     if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]:
-        buttons = [[
-            InlineKeyboardButton('➕ ADD ME 2 U R GROUP ➕', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-        ], [
-            InlineKeyboardButton('🔍 Search', switch_inline_query_current_chat=''),
-            InlineKeyboardButton('🤖 Updates', url='https://t.me/samraott1')
-        ], [
-            InlineKeyboardButton('ℹ️ Help', callback_data='help'),
-            InlineKeyboardButton('📞 Contact', callback_data='https://t.me/sheffysamra'),
-            InlineKeyboardButton('😊 About', callback_data='about')
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply_photo(
-            photo=random.choice(PICS),
-            caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode='html'
+        
+        await message.reply_sticker(
+            'CAACAgIAAxkBAALfhWKhyQAB6dM3e7xjAzNaNkDcJvRusAAChxUAAj0PUEnem2b91sejvx4E',
+            reply_markup=InlineKeyboardMarkup(
+                [[
+                    InlineKeyboardButton('🧨 ᴍᴏᴠɪᴇ ᴄʜᴀɴɴᴇʟ', url='https://t.me/samramovie')
+                ],
+                [
+                    InlineKeyboardButton('🔍 sᴇᴀʀᴄʜ ʜᴇʀᴇ', switch_inline_query_current_chat=''),
+                    InlineKeyboardButton('👥 ɢʀᴏᴜᴘ', url='https://t.me/samramovie')
+                                         
+                                         
+                ],
+                [
+                    InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
+                    InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
+                ],
+                [
+                    InlineKeyboardButton('❌ ᴄʟᴏsᴇ', callback_data='close')
+                ]]
+            )
         )
+        await query.answer('ʟᴏᴀᴅɪɴɢ......')
+        
         return
     data = message.command[1]
     try:
@@ -247,7 +263,22 @@ async def start(client, message):
         file_id=file_id,
         caption=f_caption,
         protect_content=True if pre == 'filep' else False,
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton('⭕ ᴍᴏᴠɪᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ', url="https://t.me/samramovie")
+                                         
+                ],
+                [
+                    InlineKeyboardButton('⭕ ʀᴇǫ ᴍᴏᴠɪᴇ', url="https://t.me/samramovie"),
+                    InlineKeyboardButton('⭕ ʙᴏᴛ ᴜᴘᴅᴀᴛᴇs', url="https://t.me/samraott1")
+                ],
+                [
+                    InlineKeyboardButton('⭕ ʙᴏᴛ sᴜᴘᴘᴏʀᴛ', url="https://t.me/samraott1")
+                ]
+            ]
         )
+    )
                     
 
 @Client.on_message(filters.command('channel') & filters.user(ADMINS))
@@ -345,12 +376,12 @@ async def delete_all_index(bot, message):
             [
                 [
                     InlineKeyboardButton(
-                        text="YES", callback_data="autofilter_delete"
+                        text="⚠️DESTROY⚠️", callback_data="autofilter_delete"
                     )
                 ],
                 [
                     InlineKeyboardButton(
-                        text="CANCEL", callback_data="close_data"
+                        text="❌CANCEL❌", callback_data="close_data"
                     )
                 ],
             ]
@@ -362,7 +393,7 @@ async def delete_all_index(bot, message):
 @Client.on_callback_query(filters.regex(r'^autofilter_delete'))
 async def delete_all_index_confirm(bot, message):
     await Media.collection.drop()
-    await message.answer('Piracy Is Crime')
+    await message.answer('Im Watching YOU 👀')
     await message.message.edit('Succesfully Deleted All The Indexed Files.')
 
 
@@ -471,7 +502,7 @@ async def settings(client, message):
         reply_markup = InlineKeyboardMarkup(buttons)
 
         await message.reply_text(
-            text=f"<b>Change Your Settings for {title} As Your Wish ⚙</b>",
+            text=f"<b>Change Your Settings for {title} As Your Wish ⚙\n\n@samraott1</b>",
             reply_markup=reply_markup,
             disable_web_page_preview=True,
             parse_mode="html",
